@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bilan de chapitre – Révolution française</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 :root {
@@ -177,41 +177,7 @@ footer {
   font-size:12px;
   padding:20px;
 }
-#pdfContent {
-  display:none;
-  position:absolute;
-  left:0;
-  top:0;
-  width:794px;
-  background:white;
-  color:#243447;
-  padding:35px;
-  font-family:Arial,sans-serif;
-  z-index:99999;
-  opacity:1;
-  pointer-events:none;
-}
-#pdfContent h1 { color:#244766; font-size:24px; }
-#pdfContent h2 {
-  font-size:18px;
-  border-bottom:2px solid #dce4ec;
-  padding-bottom:7px;
-  margin-top:25px;
-}
-#pdfContent h3 { font-size:14px; margin-bottom:4px; }
-.pdf-answer {
-  white-space:pre-wrap;
-  overflow-wrap:anywhere;
-  font-size:12px;
-  margin:5px 0 17px;
-  line-height:1.6;
-}
-.pdf-meta { font-size:12px; margin:5px 0 20px; }
-@media(max-width:600px) {
-  h1 { font-size:23px; }
-  .card { padding:17px; }
-  .actions button { flex:1; }
-}
+
 </style>
 </head>
 
@@ -811,165 +777,347 @@ function section(title, items) {
 
 
 
-async function downloadPDF() {
 
-  const report = document.getElementById("pdfContent");
+function downloadPDF() {
 
-  if (typeof html2pdf === "undefined") {
-    alert("La bibliothèque PDF n'a pas pu être chargée. Vérifiez votre connexion Internet.");
+  // Vérification de la bibliothèque
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("Impossible de charger la bibliothèque PDF. Vérifiez votre connexion Internet.");
     return;
   }
 
   save();
 
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
   const name = value("student");
   const cls = value("className");
 
+  // Mise en page
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const margin = 18;
+  const contentWidth = pageWidth - margin * 2;
+
+  let y = 20;
+
+  // Couleurs
+  const blue = [36, 71, 102];
+  const dark = [36, 52, 71];
+  const grey = [100, 115, 130];
+
+  // Vérifier la place disponible
+  function checkPage(height) {
+    if (y + height > pageHeight - 18) {
+      doc.addPage();
+      y = 20;
+    }
+  }
+
+  // Ajouter du texte avec retour automatique à la ligne
+  function addText(text, options = {}) {
+
+    const fontSize = options.fontSize || 10;
+    const bold = options.bold || false;
+    const color = options.color || dark;
+    const indent = options.indent || 0;
+    const lineHeight = fontSize * 0.48;
+
+    doc.setFont(
+      "helvetica",
+      bold ? "bold" : "normal"
+    );
+
+    doc.setFontSize(fontSize);
+    doc.setTextColor(...color);
+
+    const paragraphs = String(text || "").split("\n");
+
+    paragraphs.forEach(paragraph => {
+
+      const lines = doc.splitTextToSize(
+        paragraph || " ",
+        contentWidth - indent
+      );
+
+      lines.forEach(line => {
+
+        checkPage(lineHeight + 2);
+
+        doc.text(
+          line,
+          margin + indent,
+          y
+        );
+
+        y += lineHeight;
+      });
+
+      y += 1;
+    });
+
+    y += options.after !== undefined
+      ? options.after
+      : 2;
+  }
+
+  // Titre de section
+  function addSection(title, items) {
+
+    checkPage(18);
+
+    y += 5;
+
+    doc.setFillColor(...blue);
+    doc.roundedRect(
+      margin,
+      y - 5,
+      contentWidth,
+      9,
+      1.5,
+      1.5,
+      "F"
+    );
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(11);
+    doc.setTextColor(255, 255, 255);
+
+    doc.text(
+      title,
+      margin + 3,
+      y + 1
+    );
+
+    y += 12;
+
+    items.forEach(([question, answer]) => {
+
+      addText(question, {
+        fontSize: 10,
+        bold: true,
+        color: blue,
+        after: 2
+      });
+
+      addText(answer, {
+        fontSize: 9.5,
+        color: dark,
+        indent: 2,
+        after: 5
+      });
+    });
+  }
+
+  // ==================================
+  // CONSTRUCTION DU DOCUMENT
+  // ==================================
+
+  // Titre principal
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(19);
+  doc.setTextColor(...blue);
+
+  doc.text(
+    "Bilan de chapitre - Histoire",
+    margin,
+    y
+  );
+
+  y += 10;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor(...dark);
+
+  doc.text(
+    "L'Europe bouleversee par la Revolution francaise",
+    margin,
+    y
+  );
+
+  y += 6;
+
+  doc.text(
+    "(1789-1815)",
+    margin,
+    y
+  );
+
+  y += 12;
+
+  // Informations de l'élève
+doc.setFillColor(234, 242, 249);
+
+doc.roundedRect(
+  margin,
+  y - 5,
+  contentWidth,
+  30,
+  2,
+  2,
+  "F"
+);
+
+  y += 1;
+
+  addText("Eleve : " + name, {
+    bold: true,
+    fontSize: 10,
+    after: 1
+  });
+
+  addText("Classe : " + cls, {
+    fontSize: 10,
+    after: 1
+  });
+
+  addText(
+    "Date : " + new Date().toLocaleDateString("fr-FR"),
+    {
+      fontSize: 10,
+      after: 7
+    }
+  );
+
+  addText(
+    "Travail realise avec le cours et le cahier a disposition.",
+    {
+      fontSize: 9,
+      color: grey,
+      after: 8
+    }
+  );
+
+  // Partie 1
   const answers1 = [
-    ["1. Avant la Révolution française", value("q1")],
-    ["2. La Révolution de 1789", value("q2")],
-    ["3. De la monarchie à la République", value("q3")],
-    ["4. Napoléon Bonaparte", value("q4")],
-    ["5. Napoléon : héritier ou fossoyeur ?", value("q5")],
-    ["6. La Révolution française et l'Europe", value("q6")]
+    ["1. Avant la Revolution francaise", value("q1")],
+    ["2. La Revolution de 1789", value("q2")],
+    ["3. De la monarchie a la Republique", value("q3")],
+    ["4. Napoleon Bonaparte", value("q4")],
+    ["5. Napoleon : heritier ou fossoyeur ?", value("q5")],
+    ["6. La Revolution francaise et l'Europe", value("q6")]
   ];
 
+  addSection(
+    "1. Ce que j'ai retenu du chapitre",
+    answers1
+  );
+
+  // Partie 2
   const notions = [1, 2, 3].map(i => [
     "Notion : " + value("notion" + i),
     value("def" + i)
   ]);
 
+  addSection(
+    "2. Les notions essentielles",
+    notions
+  );
+
+  // Partie 3
   const dates = [1, 2, 3].map(i => [
     value("date" + i),
     value("event" + i)
   ]);
 
+  addSection(
+    "3. Les dates importantes",
+    dates
+  );
+
+  // Partie 4
   const personal = [
     ["9. Ce que j'ai retenu", value("q9")],
-    ["10. Mes difficultés", value("q10")],
-    ["11. Ce que je maîtrise moins bien", value("q11")],
-    ["12. Mon expérience du cours à distance", value("q12")],
+    ["10. Mes difficultes", value("q10")],
+    ["11. Ce que je maitrise moins bien", value("q11")],
+    ["12. Mon experience du cours a distance", value("q12")],
     ["13. Ce que je souhaiterais revoir", value("q13")]
   ];
 
+  addSection(
+    "4. Mon bilan personnel",
+    personal
+  );
+
+  // Partie 5
   const evals = skills.map((skill, i) => {
+
     const selected = document.querySelector(
       `input[name="skill${i}"]:checked`
     );
 
     return [
       skill,
-      selected ? selected.value : "Non renseigné"
+      selected ? selected.value : "Non renseigne"
     ];
   });
 
-  // Construction du document
-  report.innerHTML = `
-    <h1>Bilan de chapitre – Histoire</h1>
+  addSection(
+    "5. Mon autoevaluation",
+    evals
+  );
 
-    <h2>L'Europe bouleversée par la Révolution française (1789-1815)</h2>
+  // Conclusion personnelle
+  addSection(
+    "Pour terminer",
+    [
+      [
+        "Ce que j'ai appris dans ce chapitre",
+        value("finalThought")
+      ]
+    ]
+  );
 
-    <div class="pdf-meta">
-      <strong>Élève :</strong> ${escapeHTML(name)}<br>
-      <strong>Classe :</strong> ${escapeHTML(cls)}<br>
-      <strong>Date :</strong> ${new Date().toLocaleDateString("fr-FR")}
-    </div>
+  // ==================================
+  // NUMEROTATION DES PAGES
+  // ==================================
 
-    <p><em>Travail réalisé avec le cours et le cahier à disposition.</em></p>
+  const pageCount = doc.internal.getNumberOfPages();
 
-    ${section("1. Ce que j'ai retenu du chapitre", answers1)}
-    ${section("2. Les notions essentielles", notions)}
-    ${section("3. Les dates importantes", dates)}
-    ${section("4. Mon bilan personnel", personal)}
-    ${section("5. Mon autoévaluation", evals)}
-    ${section("Pour terminer", [
-      ["Ce que j'ai appris dans ce chapitre", value("finalThought")]
-    ])}
-  `;
+  for (let i = 1; i <= pageCount; i++) {
 
-  // Préparation temporaire de la zone PDF
-  report.style.display = "block";
-  report.style.position = "absolute";
-  report.style.left = "0px";
-  report.style.top = "0px";
-  report.style.width = "794px";
-  report.style.zIndex = "99999";
-  report.style.background = "#ffffff";
-  report.style.color = "#243447";
+    doc.setPage(i);
 
-  try {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.setTextColor(...grey);
 
-    // Attendre que le navigateur affiche et mesure le contenu
-    await new Promise(resolve => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(resolve);
-      });
-    });
-
-    console.log("Hauteur du document PDF :", report.scrollHeight);
-
-    if (report.scrollHeight === 0) {
-      throw new Error("Le contenu du PDF est vide.");
-    }
-
-    const options = {
-      margin: [12, 12, 12, 12],
-
-      filename: "Bilan_Revolution_" +
-        name.replace(/[^a-z0-9]/gi, "_") + ".pdf",
-
-      image: {
-        type: "jpeg",
-        quality: 0.98
-      },
-
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: true,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 1000,
-        windowHeight: Math.max(
-          window.innerHeight,
-          report.scrollHeight
-        )
-      },
-
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait"
-      },
-
-      pagebreak: {
-        mode: ["css", "legacy"]
-      }
-    };
-
-    // Génération et téléchargement
-    await html2pdf()
-      .set(options)
-      .from(report)
-      .save();
-
-  } catch (error) {
-
-    console.error("Erreur PDF :", error);
-
-    alert(
-      "Une erreur est survenue lors de la création du PDF. " +
-      "Consultez la console du navigateur pour plus de détails."
+    doc.text(
+      "Bilan de chapitre - Histoire - Premiere STI2D",
+      margin,
+      pageHeight - 9
     );
 
-  } finally {
-
-    // Masquer à nouveau la zone de préparation
-    report.style.display = "none";
-
+    doc.text(
+      "Page " + i + " / " + pageCount,
+      pageWidth - margin,
+      pageHeight - 9,
+      { align: "right" }
+    );
   }
+
+  // ==================================
+  // TELECHARGEMENT
+  // ==================================
+
+  const safeName = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/gi, "_");
+
+  doc.save(
+    "Bilan_Revolution_" + safeName + ".pdf"
+  );
+
 }
+
 
 
 
