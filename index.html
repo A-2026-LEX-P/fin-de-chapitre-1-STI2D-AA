@@ -1,0 +1,958 @@
+Fichier pour voir ce qu’ils ont compris et ce qu’ils ont retiré du chapitre : code pour l’application
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilan de chapitre – Révolution française</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+:root {
+  --blue:#244766;
+  --blue2:#3678a9;
+  --bg:#f3f6fa;
+  --text:#243447;
+  --muted:#68788a;
+  --border:#dce4ec;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+  line-height:1.6;
+}
+header {
+  background:var(--blue);
+  color:white;
+  padding:30px 20px;
+}
+.header-inner,.container {
+  max-width:850px;
+  margin:auto;
+}
+.kicker {
+  font-size:12px;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  opacity:.8;
+}
+h1 { font-size:28px; margin:8px 0; }
+header p { margin:0; opacity:.85; }
+.container { padding:25px 18px 60px; }
+.card {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:23px;
+  margin-bottom:18px;
+  box-shadow:0 3px 12px #20304008;
+}
+h2 { color:var(--blue); font-size:21px; margin-top:0; }
+h3 { font-size:17px; margin-bottom:7px; }
+.intro {
+  background:#eaf2f9;
+  border-left:4px solid var(--blue2);
+  padding:14px 17px;
+  border-radius:5px;
+  margin-bottom:20px;
+}
+label {
+  display:block;
+  font-weight:bold;
+  margin:13px 0 5px;
+}
+input,textarea,select {
+  width:100%;
+  padding:12px;
+  border:1px solid #cbd6e0;
+  border-radius:7px;
+  font:inherit;
+  color:var(--text);
+  background:white;
+}
+textarea {
+  min-height:105px;
+  resize:vertical;
+}
+input:focus,textarea:focus,select:focus {
+  outline:2px solid #82b6dc;
+  border-color:var(--blue2);
+}
+.question {
+  padding:15px 0;
+  border-bottom:1px solid var(--border);
+}
+.question:last-child { border:0; }
+.question p { margin:4px 0 10px; }
+.hint { color:var(--muted); font-size:13px; }
+.progress-label {
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+.progress {
+  height:8px;
+  background:#e2e8ef;
+  border-radius:20px;
+  overflow:hidden;
+  margin-bottom:22px;
+}
+.progress-bar {
+  height:100%;
+  width:20%;
+  background:var(--blue2);
+  transition:width .2s;
+}
+.tabs {
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+.tab {
+  border:1px solid var(--border);
+  background:white;
+  border-radius:20px;
+  padding:7px 12px;
+  font-size:12px;
+  color:var(--muted);
+}
+.tab.active {
+  background:var(--blue);
+  color:white;
+  border-color:var(--blue);
+}
+.step { display:none; }
+.step.active { display:block; }
+.actions {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:22px;
+}
+button {
+  border:0;
+  border-radius:8px;
+  padding:12px 19px;
+  font-size:14px;
+  font-weight:bold;
+  cursor:pointer;
+}
+.primary { background:var(--blue); color:white; }
+.secondary { background:#e7edf3; color:var(--blue); }
+button:disabled { opacity:.4; cursor:not-allowed; }
+.eval-row {
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.eval-row strong { display:block; margin-bottom:8px; }
+.eval-options {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.eval-options label {
+  font-weight:normal;
+  font-size:13px;
+  background:#f2f5f8;
+  padding:7px 10px;
+  border-radius:7px;
+  margin:0;
+}
+.eval-options input { width:auto; }
+.notice {
+  font-size:13px;
+  color:var(--muted);
+  margin-top:14px;
+}
+#finalScreen { display:none; }
+footer {
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  padding:20px;
+}
+#pdfContent {
+  position:absolute;
+  left:-10000px;
+  top:0;
+  width:750px;
+  background:white;
+  color:#243447;
+  padding:35px;
+  font-family:Arial,sans-serif;
+}
+#pdfContent h1 { color:#244766; font-size:24px; }
+#pdfContent h2 {
+  font-size:18px;
+  border-bottom:2px solid #dce4ec;
+  padding-bottom:7px;
+  margin-top:25px;
+}
+#pdfContent h3 { font-size:14px; margin-bottom:4px; }
+.pdf-answer {
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font-size:12px;
+  margin:5px 0 17px;
+  line-height:1.6;
+}
+.pdf-meta { font-size:12px; margin:5px 0 20px; }
+@media(max-width:600px) {
+  h1 { font-size:23px; }
+  .card { padding:17px; }
+  .actions button { flex:1; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="kicker">Histoire · Première STI2D</div>
+    <h1>L'Europe bouleversée par la Révolution française</h1>
+    <p>1789-1815 · Mon bilan de chapitre</p>
+  </div>
+</header>
+
+<main class="container">
+
+<div class="card">
+  <h2>Bienvenue !</h2>
+  <div class="intro">
+    Ce travail va vous permettre de faire le point sur ce que vous avez appris pendant ce chapitre.
+    <strong>Vous pouvez consulter votre cahier et votre cours pendant toute l'activité.</strong>
+    Il ne s'agit pas d'un contrôle : l'objectif est de réfléchir à ce que vous avez compris et aux points que vous souhaiteriez retravailler.
+  </div>
+
+  <label for="student">Votre prénom et votre nom</label>
+  <input id="student" placeholder="Prénom NOM">
+
+  <label for="className">Votre classe</label>
+  <input id="className" placeholder="Ex. : Première STI2D">
+
+  <p class="notice">
+    Vos réponses restent enregistrées dans votre navigateur sur cet appareil.
+    Pensez à télécharger votre PDF avant de quitter la page.
+  </p>
+</div>
+
+<div class="progress-label">
+  <span id="progressText">Étape 1 sur 5</span>
+  <span id="progressPercent">20 %</span>
+</div>
+
+<div class="progress">
+  <div class="progress-bar" id="progressBar"></div>
+</div>
+
+<div class="tabs" id="tabs">
+  <span class="tab active">1. Mes connaissances</span>
+  <span class="tab">2. Les notions</span>
+  <span class="tab">3. Les dates</span>
+  <span class="tab">4. Mon bilan</span>
+  <span class="tab">5. Autoévaluation</span>
+</div>
+
+<!-- ETAPE 1 -->
+
+<section class="step active card">
+  <h2>1. Ce que j'ai retenu du chapitre</h2>
+
+  <p class="hint">
+    Répondez aux questions en rédigeant des phrases complètes.
+    Appuyez-vous sur votre cours et essayez de reformuler avec vos propres mots.
+  </p>
+
+  <div class="question">
+    <h3>1. Avant la Révolution française</h3>
+    <p>
+      Comment était organisée la France avant 1789 ?
+      Présentez les principales caractéristiques de la monarchie absolue et de la société d'ordres.
+    </p>
+    <textarea id="q1" placeholder="Avant 1789, la France..."></textarea>
+  </div>
+
+  <div class="question">
+    <h3>2. La Révolution de 1789</h3>
+    <p>
+      Pourquoi peut-on dire que l'année 1789 marque une rupture majeure dans l'histoire de France ?
+      Présentez au moins deux changements importants apportés par la Révolution.
+    </p>
+    <textarea id="q2" placeholder="L'année 1789 marque une rupture car..."></textarea>
+  </div>
+
+  <div class="question">
+    <h3>3. De la monarchie à la République</h3>
+    <p>
+      Quelles sont les grandes étapes de l'évolution politique de la France entre 1789 et 1799 ?
+      Expliquez notamment le passage de la monarchie absolue à la monarchie constitutionnelle,
+      puis à la Première République.
+    </p>
+    <textarea id="q3"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>4. Napoléon Bonaparte</h3>
+    <p>
+      Comment Napoléon Bonaparte arrive-t-il au pouvoir ?
+      Quels changements apporte-t-il à la France après son arrivée au pouvoir ?
+    </p>
+    <textarea id="q4"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>5. Napoléon : héritier ou fossoyeur de la Révolution ?</h3>
+    <p>
+      Expliquez pourquoi Napoléon peut être considéré à la fois comme un héritier
+      et comme un fossoyeur de la Révolution française.
+      Donnez au moins un exemple pour chacune de ces deux dimensions.
+    </p>
+    <textarea id="q5"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>6. La Révolution française et l'Europe</h3>
+    <p>
+      En quoi la Révolution française et l'Empire napoléonien ont-ils bouleversé l'Europe ?
+      Que se passe-t-il après la défaite de Napoléon en 1815 ?
+    </p>
+    <textarea id="q6"></textarea>
+  </div>
+
+  <div class="actions">
+    <span></span>
+    <button class="primary" onclick="go(1)">Continuer →</button>
+  </div>
+</section>
+
+<!-- ETAPE 2 -->
+
+<section class="step card">
+  <h2>2. Les notions essentielles</h2>
+
+  <p class="hint">
+    Choisissez trois notions parmi celles du chapitre.
+    Expliquez-les avec vos propres mots. Vous pouvez consulter les définitions de votre cahier.
+  </p>
+
+  <label for="notion1">Première notion</label>
+  <select id="notion1" class="notion-select">
+    <option value="">Choisir une notion</option>
+    <option>Monarchie absolue</option>
+    <option>Société d'ordres</option>
+    <option>Souveraineté nationale</option>
+    <option>DDHC</option>
+    <option>Monarchie constitutionnelle</option>
+    <option>République</option>
+    <option>Démocratie</option>
+    <option>Terreur</option>
+    <option>Coup d'État</option>
+    <option>Empire</option>
+  </select>
+  <textarea id="def1" placeholder="Expliquez cette notion avec vos propres mots..."></textarea>
+
+  <label for="notion2">Deuxième notion</label>
+  <select id="notion2" class="notion-select">
+    <option value="">Choisir une notion</option>
+    <option>Monarchie absolue</option>
+    <option>Société d'ordres</option>
+    <option>Souveraineté nationale</option>
+    <option>DDHC</option>
+    <option>Monarchie constitutionnelle</option>
+    <option>République</option>
+    <option>Démocratie</option>
+    <option>Terreur</option>
+    <option>Coup d'État</option>
+    <option>Empire</option>
+  </select>
+  <textarea id="def2" placeholder="Expliquez cette notion avec vos propres mots..."></textarea>
+
+  <label for="notion3">Troisième notion</label>
+  <select id="notion3" class="notion-select">
+    <option value="">Choisir une notion</option>
+    <option>Monarchie absolue</option>
+    <option>Société d'ordres</option>
+    <option>Souveraineté nationale</option>
+    <option>DDHC</option>
+    <option>Monarchie constitutionnelle</option>
+    <option>République</option>
+    <option>Démocratie</option>
+    <option>Terreur</option>
+    <option>Coup d'État</option>
+    <option>Empire</option>
+  </select>
+  <textarea id="def3" placeholder="Expliquez cette notion avec vos propres mots..."></textarea>
+
+  <div class="actions">
+    <button class="secondary" onclick="go(0)">← Retour</button>
+    <button class="primary" onclick="go(2)">Continuer →</button>
+  </div>
+</section>
+
+<!-- ETAPE 3 -->
+
+<section class="step card">
+  <h2>3. Les dates importantes</h2>
+
+  <p class="hint">
+    Choisissez trois dates importantes du chapitre.
+    Pour chacune, indiquez ce qui s'est passé et expliquez pourquoi cet événement est important.
+  </p>
+
+  <div class="question">
+    <h3>Première date</h3>
+    <label for="date1">Date choisie</label>
+    <select id="date1" class="date-select"></select>
+    <textarea id="event1" placeholder="Que s'est-il passé ? Pourquoi cet événement est-il important ?"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>Deuxième date</h3>
+    <label for="date2">Date choisie</label>
+    <select id="date2" class="date-select"></select>
+    <textarea id="event2" placeholder="Que s'est-il passé ? Pourquoi cet événement est-il important ?"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>Troisième date</h3>
+    <label for="date3">Date choisie</label>
+    <select id="date3" class="date-select"></select>
+    <textarea id="event3" placeholder="Que s'est-il passé ? Pourquoi cet événement est-il important ?"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="secondary" onclick="go(1)">← Retour</button>
+    <button class="primary" onclick="go(3)">Continuer →</button>
+  </div>
+</section>
+
+<!-- ETAPE 4 -->
+
+<section class="step card">
+  <h2>4. Mon bilan personnel</h2>
+
+  <p class="intro">
+    Cette partie est particulièrement importante.
+    Répondez sincèrement : il n'y a pas de bonne ou de mauvaise réponse.
+    Vos réponses m'aideront à comprendre ce que nous devons éventuellement retravailler ensemble.
+  </p>
+
+  <div class="question">
+    <h3>9. Ce que j'ai retenu</h3>
+    <p>
+      Quelle est l'information, l'idée ou l'événement qui vous a le plus marqué
+      dans ce chapitre ? Pourquoi ?
+    </p>
+    <textarea id="q9"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>10. Mes difficultés</h3>
+    <p>
+      Qu'avez-vous trouvé le plus difficile à comprendre ?
+      Cela peut être un événement, une période, une notion, un document
+      ou le lien entre plusieurs événements.
+      Expliquez précisément ce qui vous pose problème.
+    </p>
+    <textarea id="q10"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>11. Ce que je maîtrise moins bien</h3>
+    <p>
+      Y a-t-il des éléments du chapitre que vous pensez avoir compris,
+      mais que vous auriez du mal à expliquer à quelqu'un d'autre ?
+      Si oui, lesquels ?
+    </p>
+    <textarea id="q11"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>12. Mon expérience du cours à distance</h3>
+    <p>
+      Qu'est-ce qui vous a aidé à comprendre et à travailler ?
+      À l'inverse, qu'est-ce qui a rendu le travail plus difficile ?
+    </p>
+    <textarea id="q12"></textarea>
+  </div>
+
+  <div class="question">
+    <h3>13. Ce que je souhaiterais revoir</h3>
+    <p>
+      Si nous devions consacrer une séance à reprendre certains éléments
+      du chapitre, que souhaiteriez-vous revoir en priorité ?
+      Expliquez votre choix.
+    </p>
+    <textarea id="q13"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="secondary" onclick="go(2)">← Retour</button>
+    <button class="primary" onclick="go(4)">Continuer →</button>
+  </div>
+</section>
+
+<!-- ETAPE 5 -->
+
+<section class="step card">
+  <h2>5. Mon autoévaluation</h2>
+
+  <p class="hint">
+    Pour chaque compétence, indiquez comment vous estimez la maîtriser aujourd'hui.
+    Il ne s'agit pas d'une note, mais de votre propre appréciation.
+  </p>
+
+  <div id="evaluations"></div>
+
+  <div class="question">
+    <h3>Pour terminer...</h3>
+    <p>Complétez cette phrase en quelques lignes :</p>
+    <p>
+      <strong>
+        « Si je devais résumer ce que j'ai appris dans ce chapitre, je dirais que… »
+      </strong>
+    </p>
+    <textarea id="finalThought" placeholder="Si je devais résumer ce chapitre..."></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="secondary" onclick="go(3)">← Retour</button>
+    <button class="primary" onclick="finish()">Terminer mon travail →</button>
+  </div>
+</section>
+
+<!-- ECRAN FINAL -->
+
+<section id="finalScreen" class="card">
+  <h2>Bravo, votre travail est terminé !</h2>
+
+  <div class="intro">
+    Vous avez terminé votre bilan de chapitre.
+    Vous pouvez maintenant générer votre document PDF qui rassemble toutes vos réponses.
+  </div>
+
+  <p id="studentSummary"></p>
+
+  <button class="primary" style="width:100%;margin:10px 0"
+    onclick="downloadPDF()">
+    ↓ Télécharger ma synthèse en PDF
+  </button>
+
+  <button class="secondary" style="width:100%"
+    onclick="go(4)">
+    Revenir modifier mes réponses
+  </button>
+
+  <p class="notice">
+    Une fois le PDF téléchargé, joignez-le à un mail et envoyez-le à votre professeur.
+    Attention : le téléchargement du PDF ne l'envoie pas automatiquement.
+  </p>
+</section>
+
+</main>
+
+<footer>
+  Bilan de chapitre · Histoire · Première STI2D
+</footer>
+
+<div id="pdfContent"></div>
+
+<script>
+
+// ==========================================
+// 1. LISTE DES DATES PROPOSÉES
+// ==========================================
+
+const dateOptions = [
+  "20 juin 1789 – Serment du Jeu de paume",
+  "14 juillet 1789 – Prise de la Bastille",
+  "4 août 1789 – Abolition des privilèges",
+  "26 août 1789 – DDHC",
+  "1791 – Constitution et monarchie constitutionnelle",
+  "10 août 1792 – Chute de la monarchie",
+  "Septembre 1792 – Proclamation de la République",
+  "21 janvier 1793 – Exécution de Louis XVI",
+  "4 février 1794 – Abolition de l'esclavage",
+  "28 juillet 1794 – Exécution de Robespierre",
+  "9-10 novembre 1799 – Coup d'État de Brumaire",
+  "1802 – Rétablissement de l'esclavage",
+  "2 décembre 1804 – Sacre de Napoléon",
+  "1812 – Campagne de Russie",
+  "18 juin 1815 – Bataille de Waterloo"
+];
+
+document.querySelectorAll(".date-select").forEach(select => {
+  select.innerHTML =
+    '<option value="">Choisir une date</option>' +
+    dateOptions.map(date =>
+      `<option>${date}</option>`
+    ).join("");
+});
+
+
+// ==========================================
+// 2. GRILLE D'AUTOEVALUATION
+// ==========================================
+
+const skills = [
+  "Comprendre la situation de la France avant 1789",
+  "Expliquer les changements de 1789",
+  "Comprendre le passage à la République",
+  "Expliquer l'arrivée au pouvoir de Napoléon",
+  "Comprendre les transformations apportées par Napoléon",
+  "Expliquer les conséquences de la Révolution en Europe"
+];
+
+document.getElementById("evaluations").innerHTML =
+  skills.map((skill, i) => `
+    <div class="eval-row">
+      <strong>${skill}</strong>
+      <div class="eval-options">
+        <label>
+          <input type="radio" name="skill${i}" value="Je maîtrise">
+          Je maîtrise
+        </label>
+        <label>
+          <input type="radio" name="skill${i}" value="Je pense avoir compris">
+          Je pense avoir compris
+        </label>
+        <label>
+          <input type="radio" name="skill${i}" value="J'ai besoin de revoir">
+          J'ai besoin de revoir
+        </label>
+      </div>
+    </div>
+  `).join("");
+
+
+// ==========================================
+// 3. NAVIGATION ENTRE LES ETAPES
+// ==========================================
+
+let current = 0;
+const total = 5;
+
+function go(n) {
+  current = n;
+
+  document.querySelectorAll(".step").forEach((el, i) => {
+    el.classList.toggle("active", i === n);
+  });
+
+  document.getElementById("finalScreen").style.display = "none";
+  document.getElementById("tabs").style.display = "flex";
+
+  document.querySelectorAll(".tab").forEach((el, i) => {
+    el.classList.toggle("active", i === n);
+  });
+
+  document.getElementById("progressText").textContent =
+    `Étape ${n + 1} sur ${total}`;
+
+  document.getElementById("progressPercent").textContent =
+    `${(n + 1) * 20} %`;
+
+  document.getElementById("progressBar").style.width =
+    `${(n + 1) * 20}%`;
+
+  save();
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+// ==========================================
+// 4. SAUVEGARDE DES REPONSES
+// ==========================================
+
+const fields = [
+  ...document.querySelectorAll("input, textarea, select")
+];
+
+function save() {
+  const data = {};
+
+  fields.forEach(el => {
+    if (el.type === "radio") {
+      if (el.checked) {
+        data[el.name] = el.value;
+      }
+    } else {
+      data[el.id] = el.value;
+    }
+  });
+
+  try {
+    localStorage.setItem(
+      "bilanRevolution",
+      JSON.stringify(data)
+    );
+  } catch (e) {
+    console.warn("Sauvegarde locale indisponible.");
+  }
+}
+
+function restore() {
+  try {
+    const data = JSON.parse(
+      localStorage.getItem("bilanRevolution") || "{}"
+    );
+
+    fields.forEach(el => {
+      if (el.type === "radio") {
+        el.checked = data[el.name] === el.value;
+      } else if (data[el.id] !== undefined) {
+        el.value = data[el.id];
+      }
+    });
+
+  } catch (e) {
+    console.warn("Impossible de restaurer les réponses.");
+  }
+}
+
+fields.forEach(el => {
+  el.addEventListener("input", save);
+  el.addEventListener("change", save);
+});
+
+restore();
+
+
+// ==========================================
+// 5. FIN DU QUESTIONNAIRE
+// ==========================================
+
+function finish() {
+  const name = document.getElementById("student").value.trim();
+
+  if (!name) {
+    alert("Merci d'indiquer votre prénom et votre nom avant de terminer.");
+    document.getElementById("student").focus();
+    return;
+  }
+
+  save();
+
+  document.querySelectorAll(".step").forEach(el => {
+    el.classList.remove("active");
+  });
+
+  document.getElementById("tabs").style.display = "none";
+
+  document.getElementById("finalScreen").style.display = "block";
+
+  document.getElementById("progressText").textContent =
+    "Travail terminé";
+
+  document.getElementById("progressPercent").textContent = "100 %";
+
+  document.getElementById("progressBar").style.width = "100%";
+
+  document.getElementById("studentSummary").textContent =
+    name + " · " +
+    (document.getElementById("className").value ||
+      "Classe non renseignée");
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+// ==========================================
+// 6. PREPARATION DU PDF
+// ==========================================
+
+function escapeHTML(str) {
+  return String(str || "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[c]));
+}
+
+function value(id) {
+  return document.getElementById(id)?.value ||
+    "Aucune réponse renseignée.";
+}
+
+function section(title, items) {
+  return `
+    <h2>${escapeHTML(title)}</h2>
+    ${items.map(([question, answer]) => `
+      <h3>${escapeHTML(question)}</h3>
+      <div class="pdf-answer">${escapeHTML(answer)}</div>
+    `).join("")}
+  `;
+}
+
+
+// ==========================================
+// 7. GENERATION ET TELECHARGEMENT DU PDF
+// ==========================================
+
+async function downloadPDF() {
+
+  if (!window.html2pdf) {
+    alert(
+      "La bibliothèque PDF n'a pas pu être chargée. Vérifiez votre connexion Internet et réessayez."
+    );
+    return;
+  }
+
+  save();
+
+  const name = value("student");
+  const cls = value("className");
+
+  const answers1 = [
+    ["1. Avant la Révolution française", value("q1")],
+    ["2. La Révolution de 1789", value("q2")],
+    ["3. De la monarchie à la République", value("q3")],
+    ["4. Napoléon Bonaparte", value("q4")],
+    ["5. Napoléon : héritier ou fossoyeur ?", value("q5")],
+    ["6. La Révolution française et l'Europe", value("q6")]
+  ];
+
+  const notions = [1, 2, 3].map(i => [
+    "Notion : " + (
+      value("notion" + i) === "Aucune réponse renseignée."
+        ? "Non choisie"
+        : value("notion" + i)
+    ),
+    value("def" + i)
+  ]);
+
+  const dates = [1, 2, 3].map(i => [
+    value("date" + i) === "Aucune réponse renseignée."
+      ? "Date non choisie"
+      : value("date" + i),
+    value("event" + i)
+  ]);
+
+  const personal = [
+    ["9. Ce que j'ai retenu", value("q9")],
+    ["10. Mes difficultés", value("q10")],
+    ["11. Ce que je maîtrise moins bien", value("q11")],
+    ["12. Mon expérience du cours à distance", value("q12")],
+    ["13. Ce que je souhaiterais revoir", value("q13")]
+  ];
+
+  const evals = skills.map((skill, i) => {
+    const selected = document.querySelector(
+      `input[name="skill${i}"]:checked`
+    );
+
+    return [
+      skill,
+      selected ? selected.value : "Non renseigné"
+    ];
+  });
+
+  const report = document.getElementById("pdfContent");
+
+  report.innerHTML = `
+    <h1>Bilan de chapitre – Histoire</h1>
+
+    <h2>
+      L'Europe bouleversée par la Révolution française (1789-1815)
+    </h2>
+
+    <div class="pdf-meta">
+      <strong>Élève :</strong> ${escapeHTML(name)}<br>
+      <strong>Classe :</strong> ${escapeHTML(cls)}<br>
+      <strong>Date :</strong> ${new Date().toLocaleDateString("fr-FR")}
+    </div>
+
+    <p>
+      <em>
+        Travail réalisé avec le cours et le cahier à disposition.
+      </em>
+    </p>
+
+    ${section("1. Ce que j'ai retenu du chapitre", answers1)}
+
+    ${section("2. Les notions essentielles", notions)}
+
+    ${section("3. Les dates importantes", dates)}
+
+    ${section("4. Mon bilan personnel", personal)}
+
+    ${section("5. Mon autoévaluation", evals)}
+
+    ${section("Pour terminer", [
+      [
+        "Ce que j'ai appris dans ce chapitre",
+        value("finalThought")
+      ]
+    ])}
+
+    <p style="margin-top:35px;font-size:10px;color:#68788a">
+      Bilan de chapitre – Histoire – Première STI2D
+    </p>
+  `;
+
+  const options = {
+    margin: [12, 12, 12, 12],
+
+    filename:
+      "Bilan_Revolution_" +
+      name.replace(/[^a-z0-9]/gi, "_") +
+      ".pdf",
+
+    image: {
+      type: "jpeg",
+      quality: 0.96
+    },
+
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      scrollY: 0
+    },
+
+    jsPDF: {
+      unit: "mm",
+      format: "a4",
+      orientation: "portrait"
+    },
+
+    pagebreak: {
+      mode: ["css", "legacy"]
+    }
+  };
+
+  try {
+    await html2pdf()
+      .set(options)
+      .from(report)
+      .save();
+
+  } catch (e) {
+    alert(
+      "Une erreur est survenue pendant la création du PDF. Réessayez."
+    );
+  }
+}
+
+</script>
+
+</body>
+</html>
