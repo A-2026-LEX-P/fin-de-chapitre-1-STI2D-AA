@@ -181,14 +181,17 @@ footer {
   padding:20px;
 }
 #pdfContent {
-  position:absolute;
-  left:-10000px;
+  position:fixed;
+  left:0;
   top:0;
   width:750px;
   background:white;
   color:#243447;
   padding:35px;
   font-family:Arial,sans-serif;
+  z-index:-1;
+  opacity:1;
+  pointer-events:none;
 }
 #pdfContent h1 { color:#244766; font-size:24px; }
 #pdfContent h2 {
@@ -808,12 +811,11 @@ function section(title, items) {
 // 7. GENERATION ET TELECHARGEMENT DU PDF
 // ==========================================
 
+
 async function downloadPDF() {
 
   if (!window.html2pdf) {
-    alert(
-      "La bibliothèque PDF n'a pas pu être chargée. Vérifiez votre connexion Internet et réessayez."
-    );
+    alert("La bibliothèque PDF n'a pas pu être chargée. Vérifiez votre connexion Internet.");
     return;
   }
 
@@ -832,18 +834,12 @@ async function downloadPDF() {
   ];
 
   const notions = [1, 2, 3].map(i => [
-    "Notion : " + (
-      value("notion" + i) === "Aucune réponse renseignée."
-        ? "Non choisie"
-        : value("notion" + i)
-    ),
+    "Notion : " + value("notion" + i),
     value("def" + i)
   ]);
 
   const dates = [1, 2, 3].map(i => [
-    value("date" + i) === "Aucune réponse renseignée."
-      ? "Date non choisie"
-      : value("date" + i),
+    value("date" + i),
     value("event" + i)
   ]);
 
@@ -859,7 +855,6 @@ async function downloadPDF() {
     const selected = document.querySelector(
       `input[name="skill${i}"]:checked`
     );
-
     return [
       skill,
       selected ? selected.value : "Non renseigné"
@@ -870,10 +865,7 @@ async function downloadPDF() {
 
   report.innerHTML = `
     <h1>Bilan de chapitre – Histoire</h1>
-
-    <h2>
-      L'Europe bouleversée par la Révolution française (1789-1815)
-    </h2>
+    <h2>L'Europe bouleversée par la Révolution française (1789-1815)</h2>
 
     <div class="pdf-meta">
       <strong>Élève :</strong> ${escapeHTML(name)}<br>
@@ -881,59 +873,42 @@ async function downloadPDF() {
       <strong>Date :</strong> ${new Date().toLocaleDateString("fr-FR")}
     </div>
 
-    <p>
-      <em>
-        Travail réalisé avec le cours et le cahier à disposition.
-      </em>
-    </p>
+    <p><em>Travail réalisé avec le cours et le cahier à disposition.</em></p>
 
     ${section("1. Ce que j'ai retenu du chapitre", answers1)}
-
     ${section("2. Les notions essentielles", notions)}
-
     ${section("3. Les dates importantes", dates)}
-
     ${section("4. Mon bilan personnel", personal)}
-
     ${section("5. Mon autoévaluation", evals)}
-
     ${section("Pour terminer", [
-      [
-        "Ce que j'ai appris dans ce chapitre",
-        value("finalThought")
-      ]
+      ["Ce que j'ai appris dans ce chapitre", value("finalThought")]
     ])}
-
-    <p style="margin-top:35px;font-size:10px;color:#68788a">
-      Bilan de chapitre – Histoire – Première STI2D
-    </p>
   `;
 
+  // On attend que le navigateur affiche le contenu.
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   const options = {
-    margin: [12, 12, 12, 12],
-
-    filename:
-      "Bilan_Revolution_" +
-      name.replace(/[^a-z0-9]/gi, "_") +
-      ".pdf",
-
+    margin: 12,
+    filename: "Bilan_Revolution_" +
+      name.replace(/[^a-z0-9]/gi, "_") + ".pdf",
     image: {
       type: "jpeg",
-      quality: 0.96
+      quality: 0.98
     },
-
     html2canvas: {
       scale: 2,
       useCORS: true,
-      scrollY: 0
+      backgroundColor: "#ffffff",
+      scrollX: 0,
+      scrollY: 0,
+      windowWidth: 900
     },
-
     jsPDF: {
       unit: "mm",
       format: "a4",
       orientation: "portrait"
     },
-
     pagebreak: {
       mode: ["css", "legacy"]
     }
@@ -945,12 +920,12 @@ async function downloadPDF() {
       .from(report)
       .save();
 
-  } catch (e) {
-    alert(
-      "Une erreur est survenue pendant la création du PDF. Réessayez."
-    );
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors de la création du PDF. Veuillez réessayer.");
   }
 }
+
 
 </script>
 
